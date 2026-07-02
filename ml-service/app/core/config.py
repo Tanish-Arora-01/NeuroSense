@@ -23,13 +23,7 @@ class Settings(BaseSettings):
     # App secret
     secret_key: SecretStr = SecretStr("change-me")
 
-    # Database — accepts SQLite or PostgreSQL URI
-    database_url: SecretStr | None = None
-    postgres_host: str = "localhost"
-    postgres_port: int = 5432
-    postgres_db: str = "neurosense"
-    postgres_user: str = "postgres"
-    postgres_password: SecretStr = SecretStr("change-me")
+
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -67,32 +61,7 @@ class Settings(BaseSettings):
             raise ValueError("ALLOWED_ORIGINS must define at least one origin.")
         return origins
 
-    @property
-    def is_sqlite(self) -> bool:
-        """Return True when the resolved database URI uses SQLite."""
-        if self.database_url:
-            return self.database_url.get_secret_value().strip().startswith("sqlite")
-        return False
 
-    @property
-    def sqlalchemy_database_uri(self) -> str:
-        """Build SQLAlchemy connection string.
-
-        If DATABASE_URL is set and begins with ``sqlite``, return it
-        directly — never fall through to construct a PostgreSQL URI.
-        """
-        if self.database_url:
-            database_url = self.database_url.get_secret_value().strip()
-            if database_url:
-                return database_url
-
-        # Fallback: build PostgreSQL URI from individual env vars
-        username = quote_plus(self.postgres_user)
-        password = quote_plus(self.postgres_password.get_secret_value())
-        return (
-            f"postgresql+psycopg2://{username}:{password}"
-            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
-        )
 
 
 settings = Settings()

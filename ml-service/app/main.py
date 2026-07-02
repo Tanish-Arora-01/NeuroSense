@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.database import init_db
 from app.routes.model_info import router as model_info_router
 from app.routes.screening import router as screening_router
 from app.routes.users import router as users_router
@@ -58,7 +57,6 @@ async def root():
 # ── Startup event ───────────────────────────────
 @app.on_event("startup")
 async def on_startup():
-    init_db()
     logger.info(
         "🧠 NeuroSense ML Service starting on port %s (debug=%s)",
         settings.ml_service_port,
