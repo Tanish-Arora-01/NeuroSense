@@ -138,6 +138,7 @@ export default function AdminAnalytics() {
       anchor.remove();
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
+      console.error(err);
       alert("Could not export CSV data.");
     } finally {
       setExportCsvLoading(false);

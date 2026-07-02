@@ -304,11 +304,6 @@ function RocCurve({ data }) {
     tpr: data.tpr[i],
   }));
 
-  // Diagonal reference line
-  const diagonalData = [
-    { fpr: 0, diagonal: 0 },
-    { fpr: 1, diagonal: 1 },
-  ];
 
   return (
     <div className="h-72 w-full">
