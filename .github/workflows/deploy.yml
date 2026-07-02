@@ -1,0 +1,59 @@
+name: Monorepo Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 1. Build and Push the Node.js Backend
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/tanish-arora-01/neurosense-backend:latest
+
+      # 2. Build and Push the Python ML Service
+      - name: Build and push ML Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ml-service
+          push: true
+          tags: ghcr.io/tanish-arora-01/neurosense-ml-service:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to NAT VPS via Custom SSH Port
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: 20033
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ~/neurosense
+            sudo docker-compose pull
+            sudo docker-compose up -d --remove-orphans
