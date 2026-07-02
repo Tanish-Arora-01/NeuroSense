@@ -4,7 +4,7 @@ import FeaturesStrip from "../components/FeaturesStrip";
 import AboutSection from "../components/AboutSection";
 import SystemModules from "../components/SystemModules";
 import HowItWorks from "../components/HowItWorks";
-import AssessmentPage from "../components/AssessmentPage";
+import ScreeningTest from "../components/ScreeningTest";
 import TeamSection from "../components/TeamSection";
 
 export default function LandingPage() {
@@ -24,7 +24,7 @@ export default function LandingPage() {
           <AboutSection />
           <SystemModules />
           <HowItWorks />
-          <AssessmentPage />
+          <ScreeningTest />
           <TeamSection />
         </main>
       </div>

@@ -73,7 +73,7 @@ export default function SignUp() {
           <Link to="/" className="flex items-center gap-2.5">
             <Brain className="h-8 w-8 text-white" />
             <span className="text-2xl font-bold tracking-tight">
-              NeuroScreen
+              NeuroSense
             </span>
           </Link>
         </div>
@@ -119,7 +119,7 @@ export default function SignUp() {
             className="mb-10 flex items-center gap-2 lg:hidden text-green-primary"
           >
             <Brain className="h-7 w-7" />
-            <span className="text-xl font-bold">NeuroScreen</span>
+            <span className="text-xl font-bold">NeuroSense</span>
           </Link>
 
           <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -149,8 +149,10 @@ export default function SignUp() {
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "patient", label: "Patient / User" },
+                  { value: "patient", label: "Patient" },
                   { value: "caregiver", label: "Caregiver" },
+                  { value: "doctor", label: "Doctor" },
+                  { value: "admin", label: "Admin" },
                 ].map((r) => (
                   <button
                     key={r.value}

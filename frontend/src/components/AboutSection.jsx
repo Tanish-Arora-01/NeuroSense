@@ -1,7 +1,4 @@
 import {
-  HeartPulse,
-  Brain,
-  ShieldCheck,
   Users,
   Target,
   Sparkles,
@@ -10,35 +7,28 @@ import {
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-16 md:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 md:py-24 bg-white">
+      <div id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ── Top: label + heading row ── */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* Left – label, icon cluster */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-green-primary mb-1">
-              — Our Mission
-            </p>
-            <p className="text-sm text-gray-500 mb-8">About NeuroScreen</p>
-
-            {/* Icon mosaic */}
-            <div className="grid grid-cols-3 gap-4 max-w-xs">
-              <div className="col-span-2 row-span-2 flex items-center justify-center rounded-3xl bg-green-primary p-8 shadow-lg">
-                <Brain className="w-16 h-16 text-white" />
-              </div>
-              <div className="flex items-center justify-center rounded-2xl bg-green-light p-4">
-                <HeartPulse className="w-7 h-7 text-green-primary" />
-              </div>
-              <div className="flex items-center justify-center rounded-2xl bg-cream p-4">
-                <ShieldCheck className="w-7 h-7 text-green-primary" />
-              </div>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left – Image Section */}
+          <div className="flex justify-center lg:justify-start">
+            <div className="relative w-full max-w-md">
+              {/* Decorative offset background */}
+              <div className="absolute -inset-2 md:-inset-4 bg-green-50 rounded-[2.5rem] -rotate-2 transform-gpu shadow-sm"></div>
+              {/* Image */}
+              <img 
+                src="/doc1.png" 
+                alt="NeuroSense medical professional" 
+                className="relative z-10 w-full h-auto object-cover rounded-[2rem] shadow-xl border-4 border-white"
+              />
             </div>
           </div>
 
           {/* Right – headline + description */}
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-snug text-gray-900">
-              At NeuroScreen, we make cognitive health screening{" "}
+              At NeuroSense, we make cognitive health screening{" "}
               <span className="font-serif italic text-green-primary">
                 simple, accessible,
               </span>{" "}

@@ -1,26 +1,54 @@
 const router = require("express").Router();
 const passport = require("passport");
 const User = require("../models/User");
+const ensureAuth = require("../middleware/ensureAuth");
+const validate = require("../middleware/validate");
+const { registerSchema, loginSchema } = require("../schemas");
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const isProduction = process.env.NODE_ENV === "production";
+const CLIENT_URL =
+  process.env.CLIENT_URL || (isProduction ? "" : "http://localhost:5173");
 
-// ──────────────────────────────────────────────
-// Helper: ensure the user is authenticated
-// ──────────────────────────────────────────────
-const ensureAuth = (req, res, next) => {
-  if (req.isAuthenticated()) return next();
-  return res.status(401).json({ message: "Not authenticated." });
-};
+if (isProduction && !CLIENT_URL) {
+  throw new Error("CLIENT_URL must be set in production for OAuth redirects.");
+}
 
 // ══════════════════════════════════════════════
 //  LOCAL AUTH — Register & Login
 // ══════════════════════════════════════════════
 
 /**
- * POST /api/auth/register
- * Body: { name, email, password, role? }
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [patient, caregiver, doctor, admin]
+ *     responses:
+ *       201:
+ *         description: Account created successfully
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Email already in use
  */
-router.post("/register", async (req, res) => {
+router.post("/register", validate(registerSchema), async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -69,10 +97,30 @@ router.post("/register", async (req, res) => {
 });
 
 /**
- * POST /api/auth/login
- * Body: { email, password }
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Log in with email and password
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Logged in successfully
+ *       401:
+ *         description: Invalid credentials
  */
-router.post("/login", (req, res, next) => {
+router.post("/login", validate(loginSchema), (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
     if (!user)
@@ -154,8 +202,14 @@ router.get(
 // ══════════════════════════════════════════════
 
 /**
- * POST /api/auth/logout
- * Destroys the session and logs the user out
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Log out the current user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
  */
 router.post("/logout", (req, res, next) => {
   req.logout((err) => {
@@ -169,8 +223,16 @@ router.post("/logout", (req, res, next) => {
 });
 
 /**
- * GET /api/auth/current-user
- * Returns the currently authenticated user (or 401)
+ * @swagger
+ * /api/auth/current-user:
+ *   get:
+ *     summary: Get the currently authenticated user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Returns the current user object
+ *       401:
+ *         description: Not authenticated
  */
 router.get("/current-user", ensureAuth, (req, res) => {
   return res.json({

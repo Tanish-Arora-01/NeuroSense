@@ -7,24 +7,88 @@ const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
+const helmet = require("helmet");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
 const { MongoStore } = require("connect-mongo");
 const connectDB = require("./config/db");
+const {
+  authLimiter,
+  apiLimiter,
+  screeningLimiter,
+} = require("./middleware/rateLimiter");
+const logger = require("./config/logger");
+const pinoHttp = require("pino-http");
+const requestId = require("./middleware/requestId");
 
 // Load passport strategies
 require("./config/passport");
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
+const CLIENT_URL =
+  process.env.CLIENT_URL || (isProduction ? null : "http://localhost:5173");
+const SESSION_SECRET =
+  process.env.SESSION_SECRET || (isProduction ? null : "dev-secret-change-me");
+
+if (isProduction && !CLIENT_URL) {
+  throw new Error("CLIENT_URL must be set in production.");
+}
+
+if (isProduction && !SESSION_SECRET) {
+  throw new Error("SESSION_SECRET must be set in production.");
+}
 
 // ─── Connect to MongoDB ─────────────────────
 connectDB();
+
+// ─── Security Headers & Request ID ───────────
+app.use(helmet());
+app.use(requestId);
+
+// ─── Logging Middleware ──────────────────────
+app.use(
+  pinoHttp({
+    logger,
+    customProps: (req) => ({ reqId: req.id }),
+    autoLogging: {
+      ignore: (req) => req.url === "/api/health",
+    },
+  })
+);
+
+// ─── Global Rate Limit ───────────────────────
+app.use("/api/", apiLimiter);
 
 // ─── Global Middleware ───────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ─── Swagger Documentation ───────────────────
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "NeuroSense API",
+      version: "1.0.0",
+      description: "API Documentation for NeuroSense backend",
+    },
+    servers: [
+      {
+        url: "http://localhost:5000",
+        description: "Local development server",
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: CLIENT_URL,
     credentials: true, // allow cookies / session id
   }),
 );
@@ -32,7 +96,7 @@ app.use(
 // ─── Session ─────────────────────────────────
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "dev-secret-change-me",
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -43,8 +107,8 @@ app.use(
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 day (ms)
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isProduction && CLIENT_URL && CLIENT_URL.startsWith("https"),
+      sameSite: (isProduction && CLIENT_URL && CLIENT_URL.startsWith("https")) ? "none" : "lax",
     },
   }),
 );
@@ -54,7 +118,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ─── Routes ──────────────────────────────────
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api/auth", authLimiter, require("./routes/auth"));
+app.use("/api/screening", screeningLimiter, require("./routes/screening"));
+app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/reports", require("./routes/reports"));
+app.use("/api/recommendations", require("./routes/recommendations"));
+app.use("/api/analytics", require("./routes/analytics"));
+app.use("/api/model", require("./routes/model"));
 
 // Health-check
 app.get("/api/health", (_req, res) =>
@@ -67,17 +137,14 @@ app.use((_req, res) => res.status(404).json({ message: "Route not found." }));
 // ─── Global error handler ────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
-  console.error("Unhandled error:", err);
+  logger.error({ err, reqId: _req.id }, "Unhandled error");
   res.status(err.status || 500).json({
-    message:
-      process.env.NODE_ENV === "production"
-        ? "Internal server error."
-        : err.message,
+    message: isProduction ? "Internal server error." : err.message,
   });
 });
 
 // ─── Start ───────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on http://localhost:${PORT}`);
 });

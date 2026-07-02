@@ -4,6 +4,12 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
 const User = require("../models/User");
 
+const CLIENT_URL = process.env.CLIENT_URL?.replace(/\/+$/, "");
+const getOAuthCallbackUrl = (provider) =>
+  CLIENT_URL
+    ? `${CLIENT_URL}/api/auth/${provider}/callback`
+    : `/api/auth/${provider}/callback`;
+
 // ──────────────────────────────────────────────
 // Serialize / Deserialize — store user id in session
 // ──────────────────────────────────────────────
@@ -63,7 +69,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL: getOAuthCallbackUrl("google"),
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
@@ -115,7 +121,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "/api/auth/github/callback",
+      callbackURL: getOAuthCallbackUrl("github"),
       scope: ["user:email"],
     },
     (_accessToken, _refreshToken, profile, done) => {

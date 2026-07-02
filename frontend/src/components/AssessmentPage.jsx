@@ -346,7 +346,7 @@ export default function AssessmentPage() {
         Assessment Complete
       </h2>
       <p className="mt-4 max-w-md text-gray-500 leading-relaxed">
-        Thank you for completing the NeuroScreen assessment. Your results are
+        Thank you for completing the NeuroSense assessment. Your results are
         being analysed and will be available shortly.
       </p>
       <div className="mt-8 w-full max-w-sm rounded-2xl bg-cream-dark p-6">

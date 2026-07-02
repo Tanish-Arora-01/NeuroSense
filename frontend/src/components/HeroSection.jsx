@@ -125,8 +125,8 @@ export default function HeroSection() {
               </div>
 
               {/* Decorative floating dots */}
-             
-              
+
+
             </div>
           </div>
         </div>

@@ -59,13 +59,19 @@ const Navbar = () => {
                     .getElementById("assessment")
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="rounded-full border-2 border-green-primary bg-transparent px-8 py-3 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
+                className="rounded-full border-2 border-green-primary bg-transparent px-6 py-2 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
               >
                 Take Assessment
               </button>
+              <Link
+                to="/dashboard"
+                className="rounded-full bg-green-primary px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-green-dark shadow-sm"
+              >
+                View Assessments
+              </Link>
               <button
                 onClick={signOut}
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-rose-500"
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-rose-500 ml-2"
                 title="Sign out"
               >
                 <LogOut className="h-4 w-4" />
@@ -127,12 +133,19 @@ const Navbar = () => {
               >
                 Take Assessment
               </button>
+              <Link
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="mt-2 block w-full rounded-full bg-green-primary px-6 py-3 text-center font-semibold text-white hover:bg-green-dark transition-all shadow-sm"
+              >
+                View Assessments
+              </Link>
               <button
                 onClick={() => {
                   setIsOpen(false);
                   signOut();
                 }}
-                className="mt-2 flex w-full items-center justify-center gap-2 text-base font-medium text-gray-500 hover:text-rose-500"
+                className="mt-4 flex w-full items-center justify-center gap-2 text-base font-medium text-gray-500 hover:text-rose-500"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out

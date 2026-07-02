@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Brain,
   Mail,
@@ -19,6 +19,7 @@ export default function SignIn() {
   const [submitting, setSubmitting] = useState(false);
   const { setSession } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const update = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -33,7 +34,12 @@ export default function SignIn() {
         password: form.password,
       });
       setSession(data.user);
-      navigate("/");
+      const from = location.state?.from;
+      const redirectPath = from?.pathname
+        ? `${from.pathname}${from.search || ""}${from.hash || ""}`
+        : "/";
+
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(err.message || "Invalid credentials. Please try again.");
     } finally {
@@ -49,7 +55,7 @@ export default function SignIn() {
           <Link to="/" className="flex items-center gap-2.5">
             <Brain className="h-8 w-8 text-white" />
             <span className="text-2xl font-bold tracking-tight">
-              NeuroScreen
+              NeuroSense
             </span>
           </Link>
         </div>
@@ -57,7 +63,7 @@ export default function SignIn() {
         <div className="max-w-md">
           <h1 className="text-4xl font-bold leading-tight">
             Welcome back to{" "}
-            <span className="font-serif italic">NeuroScreen.</span>
+            <span className="font-serif italic">NeuroSense.</span>
           </h1>
           <p className="mt-4 text-white/80 leading-relaxed">
             Sign in to access your cognitive health dashboard, review past
@@ -82,7 +88,7 @@ export default function SignIn() {
             className="mb-10 flex items-center gap-2 lg:hidden text-green-primary"
           >
             <Brain className="h-7 w-7" />
-            <span className="text-xl font-bold">NeuroScreen</span>
+            <span className="text-xl font-bold">NeuroSense</span>
           </Link>
 
           <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
