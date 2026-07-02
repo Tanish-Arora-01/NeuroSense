@@ -19,8 +19,6 @@ services:
     container_name: neurosense-ml-service
     restart: unless-stopped
     env_file: .env
-    volumes:
-      - ./trained_models:/app/trained_models
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/screening/health')" ]
       interval: 20s
