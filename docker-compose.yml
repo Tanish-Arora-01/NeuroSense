@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7
-    container_name: neurosense-mongodb
-    restart: unless-stopped
-    volumes:
-      - mongodb_data:/data/db
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
 
   ml-service:
     image: ghcr.io/tanish-arora-01/neurosense-ml-service:latest
@@ -33,8 +21,6 @@ services:
     container_name: neurosense-backend
     restart: unless-stopped
     depends_on:
-      mongodb:
-        condition: service_healthy
       ml-service:
         condition: service_healthy
     env_file: .env
@@ -53,5 +39,3 @@ services:
     depends_on:
       - backend
 
-volumes:
-  mongodb_data:
