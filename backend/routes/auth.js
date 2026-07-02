@@ -145,32 +145,7 @@ router.post("/login", validate(loginSchema), (req, res, next) => {
 
 
 
-// ══════════════════════════════════════════════
-//  GITHUB OAUTH
-// ══════════════════════════════════════════════
 
-/**
- * GET /api/auth/github
- * Redirects the user to GitHub authorization
- */
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
-);
-
-/**
- * GET /api/auth/github/callback
- * GitHub redirects here after authorization
- */
-router.get(
-  "/github/callback",
-  passport.authenticate("github", {
-    failureRedirect: `${CLIENT_URL}/signin?error=github`,
-  }),
-  (_req, res) => {
-    res.redirect(`${CLIENT_URL}/auth/callback`);
-  },
-);
 
 // ══════════════════════════════════════════════
 //  SESSION MANAGEMENT

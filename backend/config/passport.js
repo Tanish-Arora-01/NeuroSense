@@ -1,6 +1,5 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const GitHubStrategy = require("passport-github2").Strategy;
 const User = require("../models/User");
 
 const CLIENT_URL = process.env.CLIENT_URL?.replace(/\/+$/, "");
@@ -61,54 +60,5 @@ passport.use(
 );
 
 
-
-// ──────────────────────────────────────────────
-// 3. GITHUB STRATEGY
-// ──────────────────────────────────────────────
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: getOAuthCallbackUrl("github"),
-      scope: ["user:email"],
-    },
-    (_accessToken, _refreshToken, profile, done) => {
-      User.findOne({ githubId: profile.id })
-        .then((existingUser) => {
-          if (existingUser) return done(null, existingUser);
-
-          const email =
-            profile.emails && profile.emails[0]
-              ? profile.emails[0].value
-              : undefined;
-
-          if (!email) {
-            return User.create({
-              githubId: profile.id,
-              name: profile.displayName || profile.username,
-              provider: "github",
-            }).then((newUser) => done(null, newUser));
-          }
-
-          return User.findOne({ email }).then((userWithEmail) => {
-            if (userWithEmail) {
-              userWithEmail.githubId = profile.id;
-              return userWithEmail.save().then((saved) => done(null, saved));
-            }
-
-            return User.create({
-              githubId: profile.id,
-              name: profile.displayName || profile.username,
-              email,
-              avatar: profile.photos?.[0]?.value || "",
-              provider: "github",
-            }).then((newUser) => done(null, newUser));
-          });
-        })
-        .catch((err) => done(err, null));
-    },
-  ),
-);
 
 module.exports = passport;
