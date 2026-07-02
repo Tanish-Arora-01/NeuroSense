@@ -1,6 +1,5 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
 const User = require("../models/User");
 
@@ -61,57 +60,7 @@ passport.use(
   ),
 );
 
-// ──────────────────────────────────────────────
-// 2. GOOGLE STRATEGY
-// ──────────────────────────────────────────────
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: getOAuthCallbackUrl("google"),
-    },
-    async (_accessToken, _refreshToken, profile, done) => {
-      try {
-        // Check if a user already exists with this Google ID
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) return done(null, user);
 
-        // Check if the email is already registered (e.g. via local or GitHub)
-        const email =
-          profile.emails && profile.emails[0]
-            ? profile.emails[0].value
-            : undefined;
-
-        if (email) {
-          user = await User.findOne({ email });
-          if (user) {
-            // Link Google ID to existing account
-            user.googleId = profile.id;
-            if (!user.avatar && profile.photos?.[0]?.value) {
-              user.avatar = profile.photos[0].value;
-            }
-            await user.save();
-            return done(null, user);
-          }
-        }
-
-        // Create a brand-new user
-        user = await User.create({
-          googleId: profile.id,
-          name: profile.displayName,
-          email,
-          avatar: profile.photos?.[0]?.value || "",
-          provider: "google",
-        });
-
-        return done(null, user);
-      } catch (err) {
-        return done(err, null);
-      }
-    },
-  ),
-);
 
 // ──────────────────────────────────────────────
 // 3. GITHUB STRATEGY

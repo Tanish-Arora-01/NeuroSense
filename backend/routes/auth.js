@@ -143,32 +143,7 @@ router.post("/login", validate(loginSchema), (req, res, next) => {
   })(req, res, next);
 });
 
-// ══════════════════════════════════════════════
-//  GOOGLE OAUTH
-// ══════════════════════════════════════════════
 
-/**
- * GET /api/auth/google
- * Redirects the user to Google consent screen
- */
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }),
-);
-
-/**
- * GET /api/auth/google/callback
- * Google redirects here after consent
- */
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: `${CLIENT_URL}/signin?error=google`,
-  }),
-  (_req, res) => {
-    res.redirect(`${CLIENT_URL}/auth/callback`);
-  },
-);
 
 // ══════════════════════════════════════════════
 //  GITHUB OAUTH
