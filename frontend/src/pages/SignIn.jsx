@@ -34,12 +34,7 @@ export default function SignIn() {
         password: form.password,
       });
       setSession(data.user);
-      const from = location.state?.from;
-      const redirectPath = from?.pathname
-        ? `${from.pathname}${from.search || ""}${from.hash || ""}`
-        : "/";
-
-      navigate(redirectPath, { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Invalid credentials. Please try again.");
     } finally {

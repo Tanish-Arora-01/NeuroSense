@@ -59,7 +59,7 @@ export default function SignUp() {
             : undefined,
       });
       setSession(data.user);
-      navigate(form.role === "doctor" ? "/dashboard" : "/");
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
