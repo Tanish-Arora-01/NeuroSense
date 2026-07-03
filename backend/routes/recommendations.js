@@ -3,10 +3,10 @@ const router = require("express").Router();
 
 const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
 const DEFAULT_SEARCH_RADIUS_METERS =
-  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 100000;
+  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 25000;
 const MAX_SEARCH_RADIUS_METERS = 100000;
 const OVERPASS_TIMEOUT_MS =
-  Number(process.env.OVERPASS_TIMEOUT_MS) || 15000;
+  Number(process.env.OVERPASS_TIMEOUT_MS) || 25000;
 
 // ─── Utilities ───────────────────────────────
 
@@ -117,15 +117,14 @@ const getMockSpecialists = (latitude, longitude) => {
 
 const buildOverpassQuery = (latitude, longitude, radius) =>
   [
-    `[out:json][timeout:12];`,
+    `[out:json][timeout:25];`,
     `(`,
-    `  node["amenity"="hospital"](around:${radius},${latitude},${longitude});`,
-    `  node["amenity"="clinic"](around:${radius},${latitude},${longitude});`,
-    `  node["amenity"="doctors"](around:${radius},${latitude},${longitude});`,
-    `  node["healthcare"="doctor"](around:${radius},${latitude},${longitude});`,
-    `  node["healthcare:speciality"="neurology"](around:${radius},${latitude},${longitude});`,
+    `  nwr["amenity"~"^(hospital|clinic|doctors)$"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"~"^(hospital|clinic|doctor|centre|rehabilitation)$"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare:speciality"~"(neurology|psychiatry|geriatric|geriatrics|memory)",i](around:${radius},${latitude},${longitude});`,
+    `  nwr["name"~"(neuro|neurology|memory|dementia|geriatric|psychiatry)",i](around:${radius},${latitude},${longitude});`,
     `);`,
-    `out center 15;`,
+    `out center 80;`,
   ].join("");
 
 const buildAddressString = (tags) => {
@@ -165,8 +164,8 @@ const buildOsmMapsUrl = (lat, lon) =>
 
 const mapOverpassElement = (element, userLat, userLon) => {
   const tags = element.tags || {};
-  const elLat = element.lat;
-  const elLon = element.lon;
+  const elLat = element.lat ?? element.center?.lat;
+  const elLon = element.lon ?? element.center?.lon;
 
   const distanceKm =
     typeof elLat === "number" && typeof elLon === "number"
@@ -174,7 +173,7 @@ const mapOverpassElement = (element, userLat, userLon) => {
       : null;
 
   return {
-    id: `osm-${element.id}`,
+    id: `osm-${element.type || "element"}-${element.id}`,
     name: tags.name || "Unnamed Facility",
     category: resolveCategory(tags),
     address: buildAddressString(tags),
@@ -238,7 +237,10 @@ router.get("/specialists", async (req, res) => {
       OVERPASS_API_URL,
       `data=${encodeURIComponent(overpassQuery)}`,
       {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "NeuroSense/1.0 (contact@tanisharora.me)"
+        },
         timeout: OVERPASS_TIMEOUT_MS,
       },
     );
