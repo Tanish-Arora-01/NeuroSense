@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Brain,
   Mail,
@@ -19,7 +19,6 @@ export default function SignIn() {
   const [submitting, setSubmitting] = useState(false);
   const { setSession } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const update = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
