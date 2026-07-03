@@ -61,6 +61,7 @@ app.use(
 app.use("/api/", apiLimiter);
 
 // ─── Global Middleware ───────────────────────
+app.set("trust proxy", 1); // Trust reverse proxy for secure cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -107,8 +108,8 @@ app.use(
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 day (ms)
       httpOnly: true,
-      secure: isProduction && CLIENT_URL && CLIENT_URL.startsWith("https"),
-      sameSite: (isProduction && CLIENT_URL && CLIENT_URL.startsWith("https")) ? "none" : "lax",
+      secure: CLIENT_URL && CLIENT_URL.startsWith("https") ? true : false,
+      sameSite: CLIENT_URL && CLIENT_URL.startsWith("https") ? "none" : "lax",
     },
   }),
 );

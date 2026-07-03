@@ -46,6 +46,20 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: 20033
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: "docker-compose.yml"
+          target: "neurosense"
+          overwrite: true
+
       - name: Deploy to NAT VPS via Custom SSH Port
         uses: appleboy/ssh-action@v1.0.3
         with:
