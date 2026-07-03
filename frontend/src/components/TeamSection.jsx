@@ -26,6 +26,7 @@ export default function TeamSection() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [specialists, setSpecialists] = useState([]);
+  const [radiusKm, setRadiusKm] = useState(100);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [locationLabel, setLocationLabel] = useState("");
@@ -47,7 +48,9 @@ export default function TeamSection() {
         setLocationLabel(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
 
         try {
-          const response = await getSpecialists(latitude, longitude);
+          const response = await getSpecialists(latitude, longitude, {
+            radiusKm,
+          });
           setSpecialists(
             Array.isArray(response?.specialists) ? response.specialists : [],
           );
@@ -70,7 +73,7 @@ export default function TeamSection() {
         timeout: 10000,
       },
     );
-  }, []);
+  }, [radiusKm]);
 
   useEffect(() => {
     fetchNearbyCare();
@@ -125,7 +128,7 @@ export default function TeamSection() {
           </h2>
           <p className="mt-4 leading-relaxed text-gray-600">
             NeuroSense automatically searches OpenStreetMap for hospitals,
-            clinics, doctors, and neurology-tagged care options within 50 km of
+            clinics, doctors, and neurology-tagged care options near
             your location.
           </p>
         </div>
@@ -144,6 +147,19 @@ export default function TeamSection() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="mr-1 hidden h-4 w-4 text-gray-400 sm:block" />
+            <label className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600">
+              Radius
+              <select
+                value={radiusKm}
+                onChange={(event) => setRadiusKm(Number(event.target.value))}
+                className="bg-transparent text-green-primary outline-none"
+              >
+                <option value={10}>10 km</option>
+                <option value={25}>25 km</option>
+                <option value={50}>50 km</option>
+                <option value={100}>100 km</option>
+              </select>
+            </label>
             {specialties.map((s) => (
               <button
                 key={s.value}
@@ -202,7 +218,7 @@ export default function TeamSection() {
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((doc, index) => (
+            {filtered.slice(0, 6).map((doc, index) => (
               <div
                 key={doc.id || `${doc.name}-${index}`}
                 className="group relative flex flex-col rounded-2xl border border-gray-100 bg-white p-6 transition-shadow hover:shadow-xl"

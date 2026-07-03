@@ -2,8 +2,9 @@ const axios = require("axios");
 const router = require("express").Router();
 
 const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
-const SEARCH_RADIUS_METERS =
-  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 50000;
+const DEFAULT_SEARCH_RADIUS_METERS =
+  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 100000;
+const MAX_SEARCH_RADIUS_METERS = 100000;
 const OVERPASS_TIMEOUT_MS =
   Number(process.env.OVERPASS_TIMEOUT_MS) || 15000;
 
@@ -34,6 +35,18 @@ const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
 
 const roundTo = (value, decimals = 2) =>
   Number(Number(value).toFixed(decimals));
+
+const resolveRadiusMeters = (radiusMeters, radiusKm) => {
+  let value = DEFAULT_SEARCH_RADIUS_METERS;
+
+  if (Number.isFinite(radiusMeters) && radiusMeters > 0) {
+    value = radiusMeters;
+  } else if (Number.isFinite(radiusKm) && radiusKm > 0) {
+    value = radiusKm * 1000;
+  }
+
+  return Math.min(Math.max(Math.round(value), 1000), MAX_SEARCH_RADIUS_METERS);
+};
 
 // ─── Mock Fallback ───────────────────────────
 
@@ -186,6 +199,10 @@ const mapOverpassElement = (element, userLat, userLon) => {
 router.get("/specialists", async (req, res) => {
   const latitude = toNumber(req.query.latitude ?? req.query.lat);
   const longitude = toNumber(req.query.longitude ?? req.query.lng);
+  const requestedRadiusMeters = toNumber(
+    req.query.radiusMeters ?? req.query.radius_meters,
+  );
+  const requestedRadiusKm = toNumber(req.query.radiusKm ?? req.query.radius_km);
 
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
     return res.status(400).json({
@@ -203,7 +220,10 @@ router.get("/specialists", async (req, res) => {
     query: {
       latitude,
       longitude,
-      radiusMeters: SEARCH_RADIUS_METERS,
+      radiusMeters: resolveRadiusMeters(
+        requestedRadiusMeters,
+        requestedRadiusKm,
+      ),
     },
   };
 
@@ -211,7 +231,7 @@ router.get("/specialists", async (req, res) => {
     const overpassQuery = buildOverpassQuery(
       latitude,
       longitude,
-      SEARCH_RADIUS_METERS,
+      basePayload.query.radiusMeters,
     );
 
     const response = await axios.post(

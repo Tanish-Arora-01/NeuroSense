@@ -53,7 +53,7 @@ async function parseResponse(response) {
   return payload;
 }
 
-export async function getSpecialists(lat, lng) {
+export async function getSpecialists(lat, lng, options = {}) {
   const params = new URLSearchParams();
 
   if (lat !== undefined && lat !== null) {
@@ -62,6 +62,10 @@ export async function getSpecialists(lat, lng) {
 
   if (lng !== undefined && lng !== null) {
     params.set("longitude", String(lng));
+  }
+
+  if (options.radiusKm !== undefined && options.radiusKm !== null) {
+    params.set("radiusKm", String(options.radiusKm));
   }
 
   const query = params.toString();
