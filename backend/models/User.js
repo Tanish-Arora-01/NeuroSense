@@ -25,8 +25,35 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["patient", "caregiver", "doctor", "admin"],
+      enum: ["patient", "doctor", "admin"],
       default: "patient",
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    doctorProfile: {
+      licenseNumber: { type: String, trim: true, default: "" },
+      specialization: { type: String, trim: true, default: "" },
+      clinicName: { type: String, trim: true, default: "" },
+      city: { type: String, trim: true, default: "" },
+      yearsOfExperience: { type: Number, min: 0, default: null },
+    },
+    doctorApprovalStatus: {
+      type: String,
+      enum: ["not_required", "pending", "approved", "rejected"],
+      default: "not_required",
+      index: true,
+    },
+    doctorApprovedAt: {
+      type: Date,
+      default: null,
+    },
+    doctorApprovedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
 
     /* ── Local auth (email + password) ── */
@@ -64,10 +91,14 @@ const userSchema = new mongoose.Schema(
 
 // ─── Hash password before saving (local auth only) ───
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return;
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
-
+  try {
+    if (!this.isModified("password") || !this.password) return next();
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 });
 
 // ─── Compare candidate password against stored hash ───

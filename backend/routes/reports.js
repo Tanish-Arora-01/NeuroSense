@@ -28,10 +28,15 @@ router.get("/download/:id", ensureAuth, async (req, res) => {
       return res.status(400).json({ message: "Invalid report id." });
     }
 
-    const result = await PredictionResult.findOne({
-      _id: id,
-      user: req.user._id,
-    }).lean();
+    const accessFilter =
+      req.user.role === "admin"
+        ? { _id: id }
+        : req.user.role === "doctor" &&
+            req.user.doctorApprovalStatus === "approved"
+          ? { _id: id, doctorRef: req.user._id }
+          : { _id: id, user: req.user._id };
+
+    const result = await PredictionResult.findOne(accessFilter).lean();
 
     if (!result) {
       return res.status(404).json({ message: "Screening result not found." });
@@ -175,8 +180,10 @@ const escapeCSV = (val) => {
 router.get("/export/csv", ensureAuth, async (req, res) => {
   try {
     let results;
-    if (req.user.role === "admin" || req.user.role === "doctor") {
+    if (req.user.role === "admin") {
       results = await PredictionResult.find({}).sort({ predictionDate: -1 }).lean();
+    } else if (req.user.role === "doctor" && req.user.doctorApprovalStatus === "approved") {
+      results = await PredictionResult.find({ doctorRef: req.user._id }).sort({ predictionDate: -1 }).lean();
     } else {
       results = await PredictionResult.find({ user: req.user._id }).sort({ predictionDate: -1 }).lean();
     }

@@ -25,6 +25,12 @@ const predictionResultSchema = new mongoose.Schema(
       index: true,
     },
     patientId: { type: String, trim: true, default: "" },
+    doctorRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+      default: null,
+    },
     riskScore: {
       type: Number,
       required: true,
@@ -72,5 +78,6 @@ const predictionResultSchema = new mongoose.Schema(
 );
 
 predictionResultSchema.index({ user: 1, predictionDate: 1 });
+predictionResultSchema.index({ doctorRef: 1, predictionDate: -1 });
 
 module.exports = mongoose.model("PredictionResult", predictionResultSchema);

@@ -9,8 +9,8 @@ const ensureRole = require("../middleware/ensureRole");
 const PredictionResult = require("../models/PredictionResult");
 const logger = require("../config/logger");
 
-// All analytics endpoints are restricted to doctor/admin
-router.use(ensureAuth, ensureRole("doctor", "admin"));
+// Population analytics are restricted to internal admins.
+router.use(ensureAuth, ensureRole("admin"));
 
 // ══════════════════════════════════════════════
 //  GET /api/analytics/overview
@@ -379,4 +379,3 @@ function linearRegressionSlope(xs, ys) {
 }
 
 module.exports = router;
-

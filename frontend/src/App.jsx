@@ -14,6 +14,7 @@ import SignUp from "./pages/SignUp";
 import OAuthCallback from "./pages/OAuthCallback";
 import ResultsPage from "./pages/ResultsPage";
 import Dashboard from "./pages/Dashboard";
+import AdminPage from "./pages/AdminPage";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import ModelEvaluation from "./pages/ModelEvaluation";
 
@@ -55,6 +56,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminPage />
                 </ProtectedRoute>
               }
             />

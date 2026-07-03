@@ -10,9 +10,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getApprovedDoctors } from "../api/doctors";
 
 const SCREENING_API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/screening/run`;
-const SCREENING_REQUEST_TIMEOUT_MS = 20000;
+const SCREENING_REQUEST_TIMEOUT_MS = 60000;
 
 const INITIAL_FORM = {
   patientId: "",
@@ -24,6 +25,7 @@ const INITIAL_FORM = {
   cdrScore: "",
   familyHistory: false,
   physicalActivityLevel: "moderate",
+  doctorRef: "",
 };
 
 const READING_PROMPT =
@@ -324,6 +326,29 @@ export default function ScreeningTest() {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [doctors, setDoctors] = useState([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    setDoctorsLoading(true);
+
+    getApprovedDoctors()
+      .then((data) => {
+        if (!isMounted) return;
+        setDoctors(Array.isArray(data?.doctors) ? data.doctors : []);
+      })
+      .catch(() => {
+        if (isMounted) setDoctors([]);
+      })
+      .finally(() => {
+        if (isMounted) setDoctorsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const onFieldChange = (field) => (event) => {
     const value =
@@ -352,6 +377,7 @@ export default function ScreeningTest() {
     educationYears: toOptionalNumber(form.educationYears),
     familyHistory: form.familyHistory,
     physicalActivityLevel: form.physicalActivityLevel,
+    doctorRef: form.doctorRef || undefined,
   });
 
   const goToAudioStep = (event) => {
@@ -567,6 +593,40 @@ export default function ScreeningTest() {
                     <div className={`text-xs mt-0.5 leading-snug ${form.familyHistory ? 'text-sky-700/80' : 'text-gray-500'}`}>Check if a direct relative has a diagnosis.</div>
                   </div>
                 </div>
+
+                <label className="block space-y-1.5 sm:col-span-2 lg:col-span-4">
+                  <span className="block text-sm font-semibold text-gray-700 ml-1">
+                    Doctor referral{" "}
+                    <span className="font-normal text-gray-400">(optional)</span>
+                  </span>
+                  <select
+                    value={form.doctorRef}
+                    onChange={onFieldChange("doctorRef")}
+                    disabled={doctorsLoading || doctors.length === 0}
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm text-gray-900 outline-none transition-all hover:border-gray-300 focus:border-green-primary focus:bg-white focus:ring-4 focus:ring-green-primary/10 disabled:cursor-not-allowed disabled:text-gray-400"
+                  >
+                    <option value="">
+                      {doctorsLoading
+                        ? "Loading approved doctors..."
+                        : doctors.length > 0
+                          ? "No doctor selected"
+                          : "No approved doctors available yet"}
+                    </option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        Dr. {doctor.name}
+                        {doctor.specialization
+                          ? ` - ${doctor.specialization}`
+                          : ""}
+                        {doctor.city ? `, ${doctor.city}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="ml-1 text-xs text-gray-400">
+                    If selected, this doctor can view this assessment after
+                    submission.
+                  </p>
+                </label>
               </div>
 
               <div className="flex justify-end pt-4">

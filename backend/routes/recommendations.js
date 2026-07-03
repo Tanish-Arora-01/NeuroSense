@@ -3,7 +3,7 @@ const router = require("express").Router();
 
 const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
 const SEARCH_RADIUS_METERS =
-  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 15000;
+  Number(process.env.RECOMMENDATION_RADIUS_METERS) || 50000;
 const OVERPASS_TIMEOUT_MS =
   Number(process.env.OVERPASS_TIMEOUT_MS) || 15000;
 

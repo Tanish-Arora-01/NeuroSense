@@ -218,12 +218,10 @@ export default function ResultsPage() {
     );
   }, []);
 
-  // Auto-fetch on mount if there's a result
+  // Auto-fetch nearby care on page load.
   useEffect(() => {
-    if (result) {
-      findNearbyCare();
-    }
-  }, [result, findNearbyCare]);
+    findNearbyCare();
+  }, [findNearbyCare]);
 
   return (
     <div className="min-h-screen bg-cream px-4 py-12 sm:px-6 lg:px-8">

@@ -39,6 +39,20 @@ const formatTrendPoint = (result) => {
   };
 };
 
+const ensureApprovedDoctor = (req, res, next) => {
+  if (req.user?.role !== "doctor") {
+    return res.status(403).json({ message: "Doctor access required." });
+  }
+
+  if (req.user.doctorApprovalStatus !== "approved") {
+    return res.status(403).json({
+      message: "Doctor account is pending admin approval.",
+    });
+  }
+
+  return next();
+};
+
 // ══════════════════════════════════════════════
 //  GET /api/dashboard/history
 //  Returns paginated, filterable screening history
@@ -177,7 +191,7 @@ router.get("/summary", ensureAuth, async (req, res) => {
 router.get(
   "/admin/overview",
   ensureAuth,
-  ensureRole("doctor", "admin"),
+  ensureRole("admin"),
   async (req, res) => {
     try {
       const [totalScreenings, totalUsers, riskDistribution, recentScreenings] =
@@ -212,6 +226,101 @@ router.get(
       return res
         .status(500)
         .json({ message: "Failed to load admin overview." });
+    }
+  },
+);
+
+router.get(
+  "/doctor/patients",
+  ensureAuth,
+  ensureApprovedDoctor,
+  async (req, res) => {
+    try {
+      const page = clampInt(req.query.page, 1, 10000, DEFAULT_PAGE);
+      const limit = clampInt(req.query.limit, 1, MAX_LIMIT, DEFAULT_LIMIT);
+      const skip = (page - 1) * limit;
+
+      const filter = { doctorRef: req.user._id };
+
+      if (req.query.from || req.query.to) {
+        filter.predictionDate = {};
+        if (req.query.from) {
+          const fromDate = new Date(req.query.from);
+          if (!Number.isNaN(fromDate.getTime())) {
+            filter.predictionDate.$gte = fromDate;
+          }
+        }
+        if (req.query.to) {
+          const toDate = new Date(req.query.to);
+          if (!Number.isNaN(toDate.getTime())) {
+            filter.predictionDate.$lte = toDate;
+          }
+        }
+        if (Object.keys(filter.predictionDate).length === 0) {
+          delete filter.predictionDate;
+        }
+      }
+
+      if (
+        req.query.risk &&
+        ["low", "moderate", "high"].includes(req.query.risk.toLowerCase())
+      ) {
+        filter.riskLevel = req.query.risk.toLowerCase();
+      }
+
+      const [results, totalResults] = await Promise.all([
+        PredictionResult.find(filter)
+          .populate("user", "name email phone")
+          .sort({ predictionDate: -1, createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        PredictionResult.countDocuments(filter),
+      ]);
+
+      const records = results.map((result) => ({
+        ...formatTrendPoint(result),
+        patient: result.user
+          ? {
+              id: String(result.user._id),
+              name: result.user.name,
+              email: result.user.email,
+              phone: result.user.phone,
+            }
+          : null,
+      }));
+
+      const totalPages = Math.ceil(totalResults / limit);
+
+      return res.json({
+        doctor: {
+          id: String(req.user._id),
+          name: req.user.name,
+        },
+        totalResults,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        latest: records.length > 0 ? records[0] : null,
+        trend: records,
+        chart: {
+          labels: records.map((point) => point.dateLabel),
+          datasets: [
+            {
+              key: "riskScore",
+              label: "Assigned Patient Risk Score",
+              data: records.map((point) => point.riskScore),
+            },
+          ],
+        },
+      });
+    } catch (err) {
+      logger.error({ err, reqId: req.id }, "Doctor patient records error");
+      return res
+        .status(500)
+        .json({ message: "Failed to load assigned patient records." });
     }
   },
 );
@@ -338,4 +447,3 @@ function linearRegressionSlope(xs, ys) {
 }
 
 module.exports = router;
-

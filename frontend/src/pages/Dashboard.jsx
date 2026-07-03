@@ -33,7 +33,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { getDashboardHistory, getDeclineAnalysis } from "../api/dashboard";
+import {
+  getDashboardHistory,
+  getDeclineAnalysis,
+  getDoctorPatientRecords,
+} from "../api/dashboard";
 import { getSpecialists } from "../api/recommendations";
 import { useAuth } from "../context/AuthContext";
 
@@ -95,6 +99,12 @@ function formatDate(value) {
 
 export default function Dashboard() {
   const { isLoggedIn, user, signOut } = useAuth();
+  const isDoctor = user?.role === "doctor";
+  const isApprovedDoctor =
+    isDoctor && user?.doctorApprovalStatus === "approved";
+  const isPendingDoctor =
+    isDoctor && user?.doctorApprovalStatus !== "approved";
+  const isAdmin = user?.role === "admin";
 
   const tableRef = useRef(null);
   const [historyData, setHistoryData] = useState(null);
@@ -137,8 +147,8 @@ export default function Dashboard() {
 
     try {
       const [response, decline] = await Promise.all([
-        getDashboardHistory(),
-        getDeclineAnalysis().catch(() => null),
+        isApprovedDoctor ? getDoctorPatientRecords() : getDashboardHistory(),
+        isApprovedDoctor ? Promise.resolve(null) : getDeclineAnalysis().catch(() => null),
       ]);
       setHistoryData(response);
       setTrendData(Array.isArray(response?.trend) ? response.trend : []);
@@ -149,7 +159,7 @@ export default function Dashboard() {
     } finally {
       setHistoryLoading(false);
     }
-  }, [isLoggedIn]);
+  }, [isApprovedDoctor, isLoggedIn]);
 
   useEffect(() => {
     loadHistory();
@@ -334,6 +344,31 @@ export default function Dashboard() {
     );
   }
 
+  if (isPendingDoctor) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-xl rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+          <Brain className="mx-auto h-12 w-12 text-green-primary" />
+          <h1 className="mt-5 font-serif text-2xl font-bold text-gray-900">
+            Doctor Approval Pending
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-gray-500">
+            Your doctor profile is under admin review. Once approved, this page
+            will show patient records that explicitly reference you during
+            assessment submission.
+          </p>
+          <button
+            onClick={signOut}
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 hover:border-rose-200 hover:text-rose-600"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate Metrics from trendData
   const mmseScores = trendData
     .map((t) => t.cognitiveTests?.mmseScore)
@@ -420,7 +455,16 @@ export default function Dashboard() {
             Overview
           </h1>
           <div className="flex items-center gap-2">
-            {(user?.role === "doctor" || user?.role === "admin") && (
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm"
+              >
+                <User className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
+            {isAdmin && (
               <Link
                 to="/admin/analytics"
                 className="inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 shadow-sm"
@@ -453,12 +497,14 @@ export default function Dashboard() {
               )}
               Sync
             </button>
-            <Link
-              to="/#assessment"
-              className="inline-flex items-center gap-2 rounded-lg bg-green-primary px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark shadow-sm"
-            >
-              + New Test
-            </Link>
+            {!isApprovedDoctor && (
+              <Link
+                to="/#assessment"
+                className="inline-flex items-center gap-2 rounded-lg bg-green-primary px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark shadow-sm"
+              >
+                + New Test
+              </Link>
+            )}
           </div>
         </div>
 
@@ -484,7 +530,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-wide text-gray-500">
-                Total Screenings
+                {isApprovedDoctor ? "Assigned Records" : "Total Screenings"}
               </p>
               <p className="mt-1 text-2xl font-bold text-gray-900">
                 {historyData?.totalResults ?? 0}
@@ -498,7 +544,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-wide text-gray-500">
-                High Risk Patients
+                High Risk {isApprovedDoctor ? "Records" : "Patients"}
               </p>
               <p className="mt-1 text-2xl font-bold text-gray-900">
                 {highRiskCount}
@@ -709,7 +755,7 @@ export default function Dashboard() {
         <section ref={tableRef} className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden mt-8 scroll-mt-24">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">
-              Recent Assessments
+              {isApprovedDoctor ? "Assigned Patient Records" : "Recent Assessments"}
             </h2>
           </div>
 
@@ -739,6 +785,13 @@ export default function Dashboard() {
                     const isHighRisk = assessment.riskScore > 0.7;
                     const isModRisk = assessment.riskScore >= 0.3 && !isHighRisk;
 
+                    const displayName = isApprovedDoctor
+                      ? assessment.patient?.name || assessment.patientId || "Unknown Patient"
+                      : assessment.patientId || "Unknown Patient";
+                    const displaySubline = isApprovedDoctor
+                      ? assessment.patient?.email || assessment.patientId || "No email"
+                      : "Age/Gender N/A";
+
                     const mmse = assessment.cognitiveTests?.mmseScore !== null ? assessment.cognitiveTests.mmseScore : "N/A";
                     const moca = assessment.cognitiveTests?.mocaScore !== null ? assessment.cognitiveTests.mocaScore : "N/A";
 
@@ -760,10 +813,10 @@ export default function Dashboard() {
                             </div>
                             <div>
                               <div className="font-semibold text-gray-900">
-                                {assessment.patientId || "Unknown Patient"}
+                                {displayName}
                               </div>
                               <div className="text-[11px] font-medium text-gray-500">
-                                Age/Gender N/A
+                                {displaySubline}
                               </div>
                             </div>
                           </div>

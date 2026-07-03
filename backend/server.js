@@ -126,6 +126,8 @@ app.use("/api/reports", require("./routes/reports"));
 app.use("/api/recommendations", require("./routes/recommendations"));
 app.use("/api/analytics", require("./routes/analytics"));
 app.use("/api/model", require("./routes/model"));
+app.use("/api/doctors", require("./routes/doctors"));
+app.use("/api/admin", require("./routes/admin"));
 
 // Health-check
 app.get("/api/health", (_req, res) =>

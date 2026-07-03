@@ -211,7 +211,15 @@ describe("GET /api/dashboard/admin/overview", () => {
     expect(response.status).toBe(403);
   });
 
-  it("returns overview for doctor role", async () => {
+  it("returns 403 for doctor role", async () => {
+    const response = await request(app)
+      .get(ADMIN_ENDPOINT)
+      .set("x-test-role", "doctor");
+
+    expect(response.status).toBe(403);
+  });
+
+  it("returns overview for admin role", async () => {
     PredictionResult.countDocuments.mockResolvedValue(100);
     PredictionResult.distinct.mockResolvedValue([
       "user1",
@@ -242,7 +250,7 @@ describe("GET /api/dashboard/admin/overview", () => {
 
     const response = await request(app)
       .get(ADMIN_ENDPOINT)
-      .set("x-test-role", "doctor");
+      .set("x-test-role", "admin");
 
     expect(response.status).toBe(200);
     expect(response.body.totalScreenings).toBe(100);
@@ -254,7 +262,7 @@ describe("GET /api/dashboard/admin/overview", () => {
     });
   });
 
-  it("returns overview for admin role", async () => {
+  it("returns empty overview for admin role", async () => {
     PredictionResult.countDocuments.mockResolvedValue(0);
     PredictionResult.distinct.mockResolvedValue([]);
     PredictionResult.aggregate.mockResolvedValue([]);

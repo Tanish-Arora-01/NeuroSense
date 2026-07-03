@@ -50,7 +50,8 @@ if (isProduction && !CLIENT_URL) {
  */
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone, doctorProfile } = req.body;
+    const normalizedRole = role === "doctor" ? "doctor" : "patient";
 
     if (!name || !email || !password) {
       return res
@@ -70,7 +71,23 @@ router.post("/register", validate(registerSchema), async (req, res) => {
       name,
       email,
       password,
-      role: role || "patient",
+      role: normalizedRole,
+      phone: phone || "",
+      doctorProfile:
+        normalizedRole === "doctor"
+          ? {
+              licenseNumber: doctorProfile?.licenseNumber || "",
+              specialization: doctorProfile?.specialization || "",
+              clinicName: doctorProfile?.clinicName || "",
+              city: doctorProfile?.city || "",
+              yearsOfExperience:
+                doctorProfile?.yearsOfExperience === undefined
+                  ? null
+                  : Number(doctorProfile.yearsOfExperience),
+            }
+          : undefined,
+      doctorApprovalStatus:
+        normalizedRole === "doctor" ? "pending" : "not_required",
       provider: "local",
     });
 
@@ -87,6 +104,9 @@ router.post("/register", validate(registerSchema), async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          phone: user.phone,
+          doctorProfile: user.doctorProfile,
+          doctorApprovalStatus: user.doctorApprovalStatus,
         },
       });
     });
@@ -137,6 +157,9 @@ router.post("/login", validate(loginSchema), (req, res, next) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          phone: user.phone,
+          doctorProfile: user.doctorProfile,
+          doctorApprovalStatus: user.doctorApprovalStatus,
         },
       });
     });
@@ -193,6 +216,9 @@ router.get("/current-user", ensureAuth, (req, res) => {
       role: req.user.role,
       avatar: req.user.avatar,
       provider: req.user.provider,
+      phone: req.user.phone,
+      doctorProfile: req.user.doctorProfile,
+      doctorApprovalStatus: req.user.doctorApprovalStatus,
     },
   });
 });

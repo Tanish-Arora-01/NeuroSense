@@ -4,13 +4,14 @@ const multer = require("multer");
 const ensureAuth = require("../middleware/ensureAuth");
 const PredictionResult = require("../models/PredictionResult");
 const ScreeningAuditLog = require("../models/ScreeningAuditLog");
+const User = require("../models/User");
 const logger = require("../config/logger");
 const { screeningSchema } = require("../schemas");
 
 const ML_PREDICT_URL =
   process.env.ML_PREDICT_URL || "http://localhost:8001/api/screening/predict";
 const ML_REQUEST_TIMEOUT_MS =
-  Number(process.env.ML_REQUEST_TIMEOUT_MS) || 15000;
+  Number(process.env.ML_REQUEST_TIMEOUT_MS) || 55000;
 const ML_SERVICE_API_KEY =
   process.env.ML_SERVICE_API_KEY || process.env.SECRET_KEY || "";
 const ML_MAX_AUDIO_FILE_BYTES =
@@ -109,6 +110,27 @@ const parsePredictionDate = (body) => {
   const parsedDate = new Date(rawDate);
   if (Number.isNaN(parsedDate.getTime())) return undefined;
   return parsedDate;
+};
+
+const resolveDoctorRef = async (body) => {
+  const doctorId = getFirstDefined(body.doctorRef, body.doctor_ref);
+  if (!doctorId) return null;
+
+  const doctor = await User.findOne({
+    _id: doctorId,
+    role: "doctor",
+    doctorApprovalStatus: "approved",
+  })
+    .select("_id")
+    .lean();
+
+  if (!doctor) {
+    const error = new Error("Selected doctor is not available for referrals.");
+    error.status = 400;
+    throw error;
+  }
+
+  return doctor._id;
 };
 
 const parseStructuredField = (rawValue, fieldName) => {
@@ -243,6 +265,7 @@ router.post("/run", ensureAuth, parseAudioUpload, async (req, res) => {
 
   const mlPayload = buildMlPayload(requestBody);
   const mlRequest = buildMlRequest(req, mlPayload);
+  let selectedDoctorRef = null;
   const auditEntry = {
     userId: req.user?._id || null,
     patientId:
@@ -265,6 +288,8 @@ router.post("/run", ensureAuth, parseAudioUpload, async (req, res) => {
   let responseBody = { message: "Failed to run screening." };
 
   try {
+    selectedDoctorRef = await resolveDoctorRef(requestBody);
+
     const controller = new AbortController();
     const proxyCallStartedAt = Date.now();
     const timeoutId = setTimeout(
@@ -325,6 +350,7 @@ router.post("/run", ensureAuth, parseAudioUpload, async (req, res) => {
       } else {
         const savedResult = await PredictionResult.create({
           user: req.user._id,
+          doctorRef: selectedDoctorRef,
           patientId:
             getFirstDefined(
               prediction.patient_id,

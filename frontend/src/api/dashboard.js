@@ -84,6 +84,28 @@ export async function getDashboardHistory(params = {}) {
   return parseResponse(response);
 }
 
+export async function getDoctorPatientRecords(params = {}) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", params.page);
+  if (params.limit) query.set("limit", params.limit);
+  if (params.from) query.set("from", params.from);
+  if (params.to) query.set("to", params.to);
+  if (params.risk) query.set("risk", params.risk);
+
+  const qs = query.toString();
+  const url = `${API_BASE}/api/dashboard/doctor/patients${qs ? `?${qs}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: buildAuthHeaders({
+      Accept: "application/json",
+    }),
+  });
+
+  return parseResponse(response);
+}
+
 /**
  * Fetch aggregate summary for the current user.
  */

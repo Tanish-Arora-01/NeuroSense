@@ -9,8 +9,8 @@ const request = require("supertest");
 jest.mock("../middleware/ensureAuth", () => (req, _res, next) => {
   req.user = req._testUser || {
     _id: "mock-user-id",
-    name: "Test Doctor",
-    role: "doctor",
+    name: "Test Admin",
+    role: "admin",
   };
   next();
 });
@@ -75,9 +75,9 @@ describe("Analytics RBAC", () => {
 // ══════════════════════════════════════════════
 describe("GET /api/analytics/overview", () => {
   const app = createApp({
-    _id: "doctor-id",
-    name: "Dr. Test",
-    role: "doctor",
+    _id: "admin-id",
+    name: "Admin Test",
+    role: "admin",
   });
 
   beforeEach(() => mockAggregate.mockReset());
@@ -181,9 +181,9 @@ describe("GET /api/analytics/risk-distribution", () => {
 // ══════════════════════════════════════════════
 describe("GET /api/analytics/volume", () => {
   const app = createApp({
-    _id: "doctor-id",
-    name: "Dr. Test",
-    role: "doctor",
+    _id: "admin-id",
+    name: "Admin Test",
+    role: "admin",
   });
 
   beforeEach(() => mockAggregate.mockReset());
@@ -229,9 +229,9 @@ describe("GET /api/analytics/volume", () => {
 // ══════════════════════════════════════════════
 describe("GET /api/analytics/cognitive-trends", () => {
   const app = createApp({
-    _id: "doctor-id",
-    name: "Dr. Test",
-    role: "doctor",
+    _id: "admin-id",
+    name: "Admin Test",
+    role: "admin",
   });
 
   beforeEach(() => mockAggregate.mockReset());

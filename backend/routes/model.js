@@ -16,8 +16,8 @@ const ML_SERVICE_API_KEY =
 const ML_REQUEST_TIMEOUT_MS =
   Number(process.env.ML_REQUEST_TIMEOUT_MS) || 15000;
 
-// All model endpoints restricted to doctor/admin
-router.use(ensureAuth, ensureRole("doctor", "admin"));
+// Model evaluation is part of the internal admin console.
+router.use(ensureAuth, ensureRole("admin"));
 
 // ══════════════════════════════════════════════
 //  GET /api/model/info

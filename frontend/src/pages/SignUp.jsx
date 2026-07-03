@@ -21,6 +21,12 @@ export default function SignUp() {
     email: "",
     password: "",
     role: "patient",
+    phone: "",
+    licenseNumber: "",
+    specialization: "",
+    clinicName: "",
+    city: "",
+    yearsOfExperience: "",
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -40,9 +46,20 @@ export default function SignUp() {
         email: form.email,
         password: form.password,
         role: form.role,
+        phone: form.phone,
+        doctorProfile:
+          form.role === "doctor"
+            ? {
+                licenseNumber: form.licenseNumber,
+                specialization: form.specialization,
+                clinicName: form.clinicName,
+                city: form.city,
+                yearsOfExperience: form.yearsOfExperience,
+              }
+            : undefined,
       });
       setSession(data.user);
-      navigate("/");
+      navigate(form.role === "doctor" ? "/dashboard" : "/");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -150,9 +167,7 @@ export default function SignUp() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: "patient", label: "Patient" },
-                  { value: "caregiver", label: "Caregiver" },
                   { value: "doctor", label: "Doctor" },
-                  { value: "admin", label: "Admin" },
                 ].map((r) => (
                   <button
                     key={r.value}
@@ -171,6 +186,18 @@ export default function SignUp() {
                 ))}
               </div>
             </div>
+
+            {form.role === "doctor" && (
+              <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-4">
+                <p className="text-sm font-semibold text-amber-900">
+                  Doctor accounts require admin approval
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-amber-700">
+                  Provide your clinical details. You can sign in immediately,
+                  but patient records unlock after approval.
+                </p>
+              </div>
+            )}
 
             {/* Full Name */}
             <div>
@@ -207,6 +234,90 @@ export default function SignUp() {
                 />
               </div>
             </div>
+
+            {form.role === "doctor" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    Mobile number
+                  </span>
+                  <input
+                    type="tel"
+                    required
+                    value={form.phone}
+                    onChange={update("phone")}
+                    placeholder="+91 98765 43210"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    Medical license no.
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={form.licenseNumber}
+                    onChange={update("licenseNumber")}
+                    placeholder="State/NMC registration"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    Specialization
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={form.specialization}
+                    onChange={update("specialization")}
+                    placeholder="Neurology, Psychiatry..."
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    Years of experience
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="70"
+                    value={form.yearsOfExperience}
+                    onChange={update("yearsOfExperience")}
+                    placeholder="8"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    Hospital / clinic name
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={form.clinicName}
+                    onChange={update("clinicName")}
+                    placeholder="Memory care clinic or hospital"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="mb-1.5 block text-sm font-medium text-gray-700">
+                    City
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={form.city}
+                    onChange={update("city")}
+                    placeholder="City of practice"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-primary"
+                  />
+                </label>
+              </div>
+            )}
 
             {/* Password */}
             <div>

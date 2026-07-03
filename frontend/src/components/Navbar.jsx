@@ -5,7 +5,9 @@ import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn, signOut } = useAuth();
+  const { isLoggedIn, signOut, user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const isDoctor = user?.role === "doctor";
 
   const navLinks = [
     { name: "Home", href: "#home", active: true },
@@ -53,21 +55,27 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           {isLoggedIn ? (
             <>
-              <button
-                onClick={() =>
-                  document
-                    .getElementById("assessment")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="rounded-full border-2 border-green-primary bg-transparent px-6 py-2 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
-              >
-                Take Assessment
-              </button>
+              {!isDoctor && !isAdmin && (
+                <button
+                  onClick={() =>
+                    document
+                      .getElementById("assessment")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  className="rounded-full border-2 border-green-primary bg-transparent px-6 py-2 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
+                >
+                  Take Assessment
+                </button>
+              )}
               <Link
-                to="/dashboard"
+                to={isAdmin ? "/admin" : "/dashboard"}
                 className="rounded-full bg-green-primary px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-green-dark shadow-sm"
               >
-                View Assessments
+                {isAdmin
+                  ? "Admin Console"
+                  : isDoctor
+                    ? "Patient Records"
+                    : "View Assessments"}
               </Link>
               <button
                 onClick={signOut}
@@ -122,23 +130,29 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  document
-                    .getElementById("assessment")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="mt-2 w-full rounded-full border-2 border-green-primary bg-transparent px-6 py-3 text-center font-semibold text-green-primary hover:bg-green-primary hover:text-white transition-all"
-              >
-                Take Assessment
-              </button>
+              {!isDoctor && !isAdmin && (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    document
+                      .getElementById("assessment")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="mt-2 w-full rounded-full border-2 border-green-primary bg-transparent px-6 py-3 text-center font-semibold text-green-primary hover:bg-green-primary hover:text-white transition-all"
+                >
+                  Take Assessment
+                </button>
+              )}
               <Link
-                to="/dashboard"
+                to={isAdmin ? "/admin" : "/dashboard"}
                 onClick={() => setIsOpen(false)}
                 className="mt-2 block w-full rounded-full bg-green-primary px-6 py-3 text-center font-semibold text-white hover:bg-green-dark transition-all shadow-sm"
               >
-                View Assessments
+                {isAdmin
+                  ? "Admin Console"
+                  : isDoctor
+                    ? "Patient Records"
+                    : "View Assessments"}
               </Link>
               <button
                 onClick={() => {
