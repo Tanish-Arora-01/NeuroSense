@@ -55,7 +55,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           {isLoggedIn ? (
             <>
-              {!isDoctor && !isAdmin && (
+              {!isDoctor && (
                 <button
                   onClick={() =>
                     document
@@ -130,7 +130,7 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
-              {!isDoctor && !isAdmin && (
+              {!isDoctor && (
                 <button
                   onClick={() => {
                     setIsOpen(false);

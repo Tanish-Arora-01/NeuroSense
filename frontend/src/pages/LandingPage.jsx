@@ -4,7 +4,6 @@ import FeaturesStrip from "../components/FeaturesStrip";
 import AboutSection from "../components/AboutSection";
 import SystemModules from "../components/SystemModules";
 import HowItWorks from "../components/HowItWorks";
-import NearbyCareSection from "../components/NearbyCareSection";
 import ScreeningTest from "../components/ScreeningTest";
 import TeamSection from "../components/TeamSection";
 
@@ -25,7 +24,6 @@ export default function LandingPage() {
           <AboutSection />
           <SystemModules />
           <HowItWorks />
-          <NearbyCareSection />
           <ScreeningTest />
           <TeamSection />
         </main>

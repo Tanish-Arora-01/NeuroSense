@@ -32,7 +32,7 @@ export default function ModelEvaluation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const isAdmin = user?.role === "doctor" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   const fetchEvaluation = useCallback(async () => {
     setLoading(true);
@@ -60,7 +60,7 @@ export default function ModelEvaluation() {
             Access Restricted
           </h1>
           <p className="mt-2 text-sm text-gray-500">
-            Model evaluation is only available to doctors and administrators.
+            Model evaluation is only available to administrators.
           </p>
           <Link
             to="/dashboard"

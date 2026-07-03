@@ -66,8 +66,7 @@ export default function AdminAnalytics() {
 
   const [exportCsvLoading, setExportCsvLoading] = useState(false);
 
-  const isAdmin =
-    user?.role === "doctor" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -154,7 +153,7 @@ export default function AdminAnalytics() {
             Access Restricted
           </h1>
           <p className="mt-2 text-sm text-gray-500">
-            This page is only available to doctors and administrators.
+            This page is only available to administrators.
           </p>
           <Link
             to="/dashboard"
