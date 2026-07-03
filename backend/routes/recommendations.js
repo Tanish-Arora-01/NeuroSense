@@ -119,10 +119,14 @@ const buildOverpassQuery = (latitude, longitude, radius) =>
   [
     `[out:json][timeout:25];`,
     `(`,
-    `  nwr["amenity"~"^(hospital|clinic|doctors)$"](around:${radius},${latitude},${longitude});`,
-    `  nwr["healthcare"~"^(hospital|clinic|doctor|centre|rehabilitation)$"](around:${radius},${latitude},${longitude});`,
-    `  nwr["healthcare:speciality"~"(neurology|psychiatry|geriatric|geriatrics|memory)",i](around:${radius},${latitude},${longitude});`,
-    `  nwr["name"~"(neuro|neurology|memory|dementia|geriatric|psychiatry)",i](around:${radius},${latitude},${longitude});`,
+    `  nwr["amenity"="hospital"](around:${radius},${latitude},${longitude});`,
+    `  nwr["amenity"="clinic"](around:${radius},${latitude},${longitude});`,
+    `  nwr["amenity"="doctors"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"="hospital"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"="clinic"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"="doctor"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"="centre"](around:${radius},${latitude},${longitude});`,
+    `  nwr["healthcare"="rehabilitation"](around:${radius},${latitude},${longitude});`,
     `);`,
     `out center 80;`,
   ].join("");
