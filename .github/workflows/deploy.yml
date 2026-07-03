@@ -71,3 +71,8 @@ jobs:
             cd ~/neurosense
             sudo docker compose pull
             sudo docker compose up -d --remove-orphans
+            sudo docker system df
+            sudo docker container prune -f
+            sudo docker image prune -af --filter "until=168h"
+            sudo docker builder prune -af --filter "until=168h"
+            sudo docker system df
