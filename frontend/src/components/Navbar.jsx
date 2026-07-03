@@ -17,20 +17,18 @@ const Navbar = () => {
   ];
 
   return (
-    // Removed 'sticky', 'top-0', 'shadow-sm', and 'bg-white'.
-    // Added generous top padding (pt-8) so it breathes like the design.
-    <nav className="w-full bg-cream px-8 py-6 lg:px-12 lg:py-8">
+    <nav className="w-full bg-cream px-8 py-8 lg:px-14 lg:py-10">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <Brain className="h-8 w-8 text-green-primary" />
-          <span className="text-xl font-bold tracking-tight text-gray-900 lg:text-2xl">
-            Neuro<span className="text-green-primary">Screen</span>
+        <div className="flex items-center gap-3">
+          <Brain className="h-9 w-9 text-green-primary lg:h-10 lg:w-10" />
+          <span className="text-2xl font-bold tracking-tight text-gray-900 lg:text-3xl">
+            Neuro<span className="text-green-primary">Sense</span>
           </span>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="hidden items-center gap-12 md:flex">
           {navLinks.map((link) => (
             <div
               key={link.name}
@@ -38,21 +36,21 @@ const Navbar = () => {
             >
               <a
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-green-primary ${
+                className={`text-base font-medium transition-colors hover:text-green-primary ${
                   link.active ? "text-green-primary" : "text-gray-500"
                 }`}
               >
                 {link.name}
               </a>
               {link.active && (
-                <span className="absolute -bottom-1.5 h-0.5 w-4 rounded-full bg-green-primary"></span>
+                <span className="absolute -bottom-2 h-0.5 w-5 rounded-full bg-green-primary"></span>
               )}
             </div>
           ))}
         </div>
 
         {/* CTA Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-4">
           {isLoggedIn ? (
             <>
               {!isDoctor && (
@@ -62,14 +60,14 @@ const Navbar = () => {
                       .getElementById("assessment")
                       ?.scrollIntoView({ behavior: "smooth" })
                   }
-                  className="rounded-full border-2 border-green-primary bg-transparent px-6 py-2 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
+                  className="rounded-full border-2 border-green-primary bg-transparent px-7 py-3 text-base font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
                 >
                   Take Assessment
                 </button>
               )}
               <Link
                 to={isAdmin ? "/admin" : "/dashboard"}
-                className="rounded-full bg-green-primary px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-green-dark shadow-sm"
+                className="rounded-full bg-green-primary px-7 py-3 text-base font-semibold text-white shadow-sm transition-all hover:bg-green-dark"
               >
                 {isAdmin
                   ? "Admin Console"
@@ -79,7 +77,7 @@ const Navbar = () => {
               </Link>
               <button
                 onClick={signOut}
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-rose-500 ml-2"
+                className="ml-2 flex items-center gap-1.5 text-base font-medium text-gray-500 transition-colors hover:text-rose-500"
                 title="Sign out"
               >
                 <LogOut className="h-4 w-4" />
@@ -90,13 +88,13 @@ const Navbar = () => {
             <>
               <Link
                 to="/signin"
-                className="text-sm font-medium text-gray-600 transition-colors hover:text-green-primary"
+                className="text-base font-medium text-gray-600 transition-colors hover:text-green-primary"
               >
                 Sign In
               </Link>
               <Link
                 to="/signup"
-                className="rounded-full border-2 border-green-primary bg-transparent px-8 py-3 text-sm font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
+                className="rounded-full border-2 border-green-primary bg-transparent px-9 py-3.5 text-base font-semibold text-green-primary transition-all hover:bg-green-primary hover:text-white"
               >
                 Sign Up
               </Link>
@@ -109,7 +107,7 @@ const Navbar = () => {
           className="block text-gray-600 hover:text-green-primary md:hidden focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
         </button>
       </div>
 

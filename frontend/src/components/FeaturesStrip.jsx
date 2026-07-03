@@ -25,13 +25,13 @@ const features = [
 
 export default function FeaturesStrip() {
   return (
-    <section className="py-12 md:py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-cream py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f) => (
             <div
               key={f.title}
-              className="flex flex-col items-center text-center p-6 rounded-2xl hover:shadow-lg transition-shadow bg-cream"
+              className="flex flex-col items-center text-center p-6 rounded-2xl border border-green-primary/10 bg-white shadow-sm transition-shadow hover:shadow-lg"
             >
               <div className="w-14 h-14 rounded-full bg-green-light flex items-center justify-center mb-4">
                 <f.icon className="w-6 h-6 text-green-primary" />

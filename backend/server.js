@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// NeuroScreen Backend — Entry Point
+// NeuroSense Backend — Entry Point
 // ──────────────────────────────────────────────
 require("dotenv").config();
 

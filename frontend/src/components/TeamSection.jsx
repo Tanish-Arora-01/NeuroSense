@@ -118,7 +118,7 @@ export default function TeamSection() {
 
   return (
     <section className="bg-cream py-16 md:py-24">
-      <div id="specialists" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div id="specialists" className="mx-auto max-w-7xl px-6 lg:px-12">
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
             Find Nearby{" "}

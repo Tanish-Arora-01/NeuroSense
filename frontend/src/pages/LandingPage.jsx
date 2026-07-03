@@ -9,14 +9,8 @@ import TeamSection from "../components/TeamSection";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-green-primary font-sans antialiased">
-      <div
-        className="mx-auto max-w-[1440px] bg-white"
-        style={{
-          marginTop: "calc((100vw - min(100vw, 1440px)) / 2)",
-          marginBottom: "calc((100vw - min(100vw, 1440px)) / 2)",
-        }}
-      >
+    <div className="min-h-screen bg-green-primary font-sans antialiased p-8 sm:p-10 lg:p-[3.125rem] flex flex-col">
+      <div className="w-full bg-cream flex-1 overflow-hidden shadow-2xl">
         <Navbar />
         <main>
           <HeroSection />

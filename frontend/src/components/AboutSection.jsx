@@ -8,7 +8,7 @@ import {
 export default function AboutSection() {
   return (
     <section className="py-16 md:py-24 bg-white">
-      <div id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="about" className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* ── Top: label + heading row ── */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left – Image Section */}

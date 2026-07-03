@@ -43,7 +43,7 @@ const modules = [
 export default function SystemModules() {
   return (
     <section className="py-16 md:py-24 bg-white">
-      <div id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="features" className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
