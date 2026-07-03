@@ -9,7 +9,7 @@ import TeamSection from "../components/TeamSection";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-green-primary font-sans antialiased p-8 sm:p-10 lg:p-[3.125rem] flex flex-col">
+    <div className="min-h-screen bg-green-primary font-sans antialiased p-0 md:p-8 lg:p-[3.125rem] flex flex-col">
       <div className="w-full bg-cream flex-1 overflow-hidden shadow-2xl">
         <Navbar />
         <main>

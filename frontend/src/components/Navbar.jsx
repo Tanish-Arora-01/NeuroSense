@@ -17,18 +17,18 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="w-full bg-cream px-8 py-8 lg:px-14 lg:py-10">
+    <nav className="w-full bg-cream px-5 py-6 sm:px-8 sm:py-8 lg:px-14 lg:py-10">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <Brain className="h-9 w-9 text-green-primary lg:h-10 lg:w-10" />
-          <span className="text-2xl font-bold tracking-tight text-gray-900 lg:text-3xl">
+          <Brain className="h-8 w-8 text-green-primary sm:h-9 sm:w-9 lg:h-10 lg:w-10" />
+          <span className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl lg:text-3xl">
             Neuro<span className="text-green-primary">Sense</span>
           </span>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center gap-12 md:flex">
+        <div className="hidden items-center gap-12 lg:flex">
           {navLinks.map((link) => (
             <div
               key={link.name}
@@ -50,7 +50,7 @@ const Navbar = () => {
         </div>
 
         {/* CTA Buttons */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden items-center gap-4 lg:flex">
           {isLoggedIn ? (
             <>
               {!isDoctor && (
@@ -104,16 +104,16 @@ const Navbar = () => {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="block text-gray-600 hover:text-green-primary md:hidden focus:outline-none"
+          className="block text-gray-600 hover:text-green-primary lg:hidden focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+          {isOpen ? <X className="h-6 w-6 sm:h-7 sm:w-7" /> : <Menu className="h-6 w-6 sm:h-7 sm:w-7" />}
         </button>
       </div>
 
       {/* Mobile Navigation Dropdown */}
       {isOpen && (
-        <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-6 md:hidden">
+        <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-6 lg:hidden">
           {navLinks.map((link) => (
             <a
               key={link.name}

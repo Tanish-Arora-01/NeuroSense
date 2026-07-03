@@ -21,7 +21,7 @@ const modules = [
   {
     icon: BarChart3,
     title: "ML Risk Prediction",
-    desc: "Classifies dementia risk using ensemble ML models and generates a 0–100% confidence score.",
+    desc: "Classifies dementia risk using ensemble ML models and generates a 0-100% confidence score.",
   },
   {
     icon: Layers,
@@ -42,34 +42,38 @@ const modules = [
 
 export default function SystemModules() {
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div id="features" className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+    <section className="bg-white py-14 md:py-24">
+      <div id="features" className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-12">
+        <div className="mx-auto mb-8 max-w-2xl text-center sm:mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
             Our system{" "}
             <span className="font-serif italic text-green-primary">
               modules
             </span>
           </h2>
-          <p className="mt-4 text-gray-600 leading-relaxed">
-            A comprehensive set of tools built to screen, classify, and guide —
+          <p className="mt-4 leading-relaxed text-gray-600">
+            A comprehensive set of tools built to screen, classify, and guide -
             all in one seamless experience.
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="divide-y divide-green-primary/10 sm:grid sm:grid-cols-2 sm:gap-6 sm:divide-y-0 lg:grid-cols-3">
           {modules.map((m) => (
             <div
               key={m.title}
-              className="bg-green-dark rounded-2xl p-7 flex flex-col gap-4 hover:scale-[1.02] transition-transform"
+              className="flex gap-4 py-4 transition-transform sm:flex-col sm:gap-4 sm:rounded-2xl sm:bg-green-dark sm:p-7 sm:hover:scale-[1.02]"
             >
-              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                <m.icon className="w-6 h-6 text-green-accent" />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-light sm:h-12 sm:w-12 sm:bg-white/10">
+                <m.icon className="h-5 w-5 text-green-primary sm:h-6 sm:w-6 sm:text-green-accent" />
               </div>
-              <h3 className="text-white font-semibold text-lg">{m.title}</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{m.desc}</p>
+              <div>
+                <h3 className="font-semibold text-gray-900 sm:text-lg sm:text-white">
+                  {m.title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-gray-500 sm:mt-0 sm:text-gray-300">
+                  {m.desc}
+                </p>
+              </div>
             </div>
           ))}
         </div>
