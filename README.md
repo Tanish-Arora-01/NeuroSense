@@ -11,7 +11,7 @@
 [![Docker](https://img.shields.io/badge/Docker-GHCR-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 **Live app:** [neurosense.tanisharora.me](https://neurosense.tanisharora.me)  
-**Backend docs:** `/api/docs` | **ML docs:** `/docs`
+**Backend docs:** [https://api.tanisharora.me/api/docs](https://api.tanisharora.me/api/docs) | **ML docs:** `http://localhost:8001/docs` (Local)
 
 </div>
 
