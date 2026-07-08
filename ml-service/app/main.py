@@ -62,3 +62,40 @@ async def on_startup():
         settings.ml_service_port,
         settings.debug,
     )
+    
+    # Warmup to prevent first-request timeouts
+    logger.info("Warming up ML models and JIT compilers...")
+    
+    # 1. Tabular model & SHAP explainer
+    try:
+        from app.models.ml_model import predict as ml_predict
+        ml_predict({"age": 65, "mmse_score": 28, "cdr_score": 0.5})
+        logger.info("Tabular model warmup complete.")
+    except Exception as e:
+        logger.warning(f"Tabular model warmup failed: {e}")
+
+    # 2. Vosk model & Librosa (Numba JIT)
+    try:
+        from app.core.audio_processor import _load_vosk_model, analyze_speech
+        import tempfile
+        import wave
+        import os
+        
+        _load_vosk_model()
+        
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            dummy_path = f.name
+            with wave.open(dummy_path, "wb") as wav_file:
+                wav_file.setnchannels(1)
+                wav_file.setsampwidth(2)
+                wav_file.setframerate(16000)
+                wav_file.writeframes(b"\x00\x00" * 16000)  # 1 second of silence
+                
+        try:
+            analyze_speech(dummy_path)
+            logger.info("Audio model (Vosk + Librosa) warmup complete.")
+        finally:
+            os.unlink(dummy_path)
+            
+    except Exception as e:
+        logger.warning(f"Audio model warmup failed: {e}")
